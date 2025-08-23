@@ -1,0 +1,7 @@
+export const ROLES = {
+  BLOG_ADMIN: "BLOG_ADMIN",
+  USER_ADMIN: "USER_ADMIN",
+  EDITOR: "EDITOR",
+  AUTHOR: "AUTHOR",
+  READER: "READER"
+};
