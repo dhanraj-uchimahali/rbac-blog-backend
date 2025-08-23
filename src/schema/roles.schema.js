@@ -7,8 +7,8 @@ const createRoleSchema = yup.object({
 const fetchRoleParamsSchema = yup.object({
   roleId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
-    .required("Role id is required"),
+    .required("Role id is required")
+    .matches(/^\d+$/, "Only numbers are allowed")
 });
 
 const updateRoleSchema = yup.object({
@@ -18,14 +18,14 @@ const updateRoleSchema = yup.object({
 const updateRoleParamsSchema = yup.object({
   roleId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
-    .required("Role id is required"),
+    .required("Role id is required")
+    .matches(/^\d+$/, "Only numbers are allowed")
 });
 
 const deleteRoleSchema = yup.object({
   roleId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("Role id is required"),
 });
 

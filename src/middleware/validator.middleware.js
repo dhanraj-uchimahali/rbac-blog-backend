@@ -24,22 +24,6 @@ export const validatorMiddleware = ({ body: bodySchema, params: paramsSchema, qu
         });
         req.query = validatedQuery;
       }
-
-      if (fileSchema && req.file) {
-        const validatedFile = await fileSchema.validate(req.file, {
-          abortEarly: false,
-          stripUnknown: true,
-        });
-        req.file = validatedFile;
-      }
-      
-      if (filesSchema && req.files) {
-        const validatedFiles = await filesSchema.validate(req.files, {
-          abortEarly: false,
-          stripUnknown: true,
-        });
-        req.files = validatedFiles;
-      }
       next();
     } catch (err) {
       return res.status(400).json({

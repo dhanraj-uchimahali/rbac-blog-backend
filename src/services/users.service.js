@@ -93,7 +93,7 @@ userService.fetchOne = async ({ userId, roleType, user_id }) => {
 userService.update = async ({ userId, fullName, email, roleType, user_id }) => {
   /* Allow access if the user is an admin, or if not admin, only allow access to their own data */
   if (roleType !== ROLES.USER_ADMIN && parseInt(userId) !== user_id) {
-    throw new CustomError(403, "Forbidden: You cannot access this data");
+    throw new CustomError(403, "Forbidden: You cannot update other users data");
   }
 
   /* Check whether user details exists or not */
@@ -120,7 +120,7 @@ userService.update = async ({ userId, fullName, email, roleType, user_id }) => {
 userService.delete = async ({ userId, roleType, user_id }) => {
   /* Allow access if the user is an admin, or if not admin, only allow access to their own data */
   if (roleType !== ROLES.USER_ADMIN && parseInt(userId) !== user_id) {
-    throw new CustomError(403, "Forbidden: You cannot access this data");
+    throw new CustomError(403, "Forbidden: You cannot delete other users data");
   }
 
   /* Check whether user details exists or not */

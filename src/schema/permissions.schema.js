@@ -8,7 +8,7 @@ const createPermissionSchema = yup.object({
 const fetchPermissionParamsSchema = yup.object({
   permissionId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("User id is required"),
 });
 
@@ -20,14 +20,14 @@ const updatePermissionSchema = yup.object({
 const updatePermissionParamsSchema = yup.object({
   permissionId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("Permission id is required"),
 });
 
 const deletePermissionSchema = yup.object({
   permissionId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("Permission id is required"),
 });
 
