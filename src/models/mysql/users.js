@@ -68,7 +68,7 @@ export default (sequelize, DataTypes) => {
   );
   User.associate = (models) => {
     User.belongsTo(models.Roles, { foreignKey: "role_id", as: "role" });
-    // User.hasMany(models.Blogs, { foreignKey: "user_id", as: "blogs" });
+    User.hasMany(models.Blogs, { foreignKey: "user_id", as: "blogs" });
   };
   return User;
 };

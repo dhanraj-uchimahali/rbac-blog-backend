@@ -6,7 +6,7 @@ const createRolePermissionsSchema = yup.object({
 });
 
 const fetchRolePermissionSchema = yup.object({
-  rolePermissionId: yup.string().matches(/^[0-9]+$/, "Only numbers are allowed").required("Role permission id is required")
+  rolePermissionId: yup.string().matches(/^\d+$/, "Only numbers are allowed").required("Role permission id is required")
 })
 
 const updateRolePermissionsSchema = yup.object({
@@ -15,11 +15,11 @@ const updateRolePermissionsSchema = yup.object({
 });
 
 const updateRolePermissionsParamsSchema = yup.object({
-  rolePermissionId: yup.string().matches(/^[0-9]+$/, "Only numbers are allowed").required("Role permission id is required")
+  rolePermissionId: yup.string().matches(/^\d+$/, "Only numbers are allowed").required("Role permission id is required")
 })
 
 const deleteRolePermissionsSchema = yup.object({
-  rolePermissionId: yup.string().matches(/^[0-9]+$/, "Only numbers are allowed").required("Role permission id is required")
+  rolePermissionId: yup.string().matches(/^\d+$/, "Only numbers are allowed").required("Role permission id is required")
 });
 
 export { createRolePermissionsSchema, fetchRolePermissionSchema, updateRolePermissionsSchema, updateRolePermissionsParamsSchema, deleteRolePermissionsSchema }

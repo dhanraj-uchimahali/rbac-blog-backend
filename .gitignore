@@ -18,3 +18,6 @@ node_modules/
 # Build output
 dist/
 build/
+
+# File uploads / temp storage
+temp/

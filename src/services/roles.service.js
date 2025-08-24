@@ -4,7 +4,7 @@ import db from "../models/mysql/index.js";
 const rolesService = {};
 
 rolesService.fetchAll = async ({ search }) => {
-  const whereCondition = { is_active: 1 };
+  let whereCondition = { is_active: 1 };
   if (search) {
     whereCondition.name = search;
   }

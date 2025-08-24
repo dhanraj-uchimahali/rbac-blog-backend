@@ -14,7 +14,7 @@ const userLoginSchema = yup.object({
 const fetchUserParamsSchema = yup.object({
   userId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("User id is required"),
 });
 
@@ -44,14 +44,14 @@ const updateUserSchema = yup.object({
 const updateUserParamsSchema = yup.object({
   userId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("User id is required"),
 });
 
 const deleteUserSchema = yup.object({
   userId: yup
     .string()
-    .matches(/^[0-9]+$/, "Only numbers are allowed")
+    .matches(/^\d+$/, "Only numbers are allowed")
     .required("User id is required"),
 });
 
