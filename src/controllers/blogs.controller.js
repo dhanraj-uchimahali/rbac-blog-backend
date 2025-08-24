@@ -42,7 +42,7 @@ blogsController.update = asyncHandler(async (req, res) => {
 });
 
 blogsController.delete = asyncHandler(async (req, res) => {
-  const result = await blogsService.delete({ blogId: req.params.blogId });
+  const result = await blogsService.delete({ blogId: req.params.blogId, userId: req.userId, roleType: req.roleType });
   res.success(result, "Blog deleted successfully.", 200);
 });
 

@@ -20,5 +20,4 @@ dist/
 build/
 
 # File uploads / temp storage
-uploads/
 temp/

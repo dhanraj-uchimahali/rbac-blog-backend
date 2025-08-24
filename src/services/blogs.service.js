@@ -185,7 +185,7 @@ blogsService.update = async ({ blogId, title, content, imageURL, userId, roleTyp
   );
 };
 
-blogsService.delete = async ({ blogId }) => {
+blogsService.delete = async ({ blogId, userId, roleType }) => {
   /* Check whether mentioned blog exists or not */
   const blogData = await db.Blogs.findOne({
     where: { blog_id: blogId, is_active: 1 },
