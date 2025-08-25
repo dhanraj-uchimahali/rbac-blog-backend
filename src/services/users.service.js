@@ -1,5 +1,5 @@
 import CustomError from "../utils/customError.js";
-import { generateRefreshToken, generateToken, verifyToken } from "../utils/auth.js";
+import { generateRefreshToken, generateToken, verifyToken, generateTempToken } from "../utils/auth.js";
 import db from "../models/mysql/index.js";
 import { client } from "../db/redis.js";
 import bcrypt from "bcrypt";
@@ -23,7 +23,7 @@ userService.create = async ({ fullName, email, password, confirmPassword, roleTy
   });
 
   if (!roleData) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
 
   /* Check whether user details exists or not */
@@ -79,7 +79,7 @@ userService.fetchOne = async ({ userId, roleType, user_id }) => {
   });
 
   if (!userDetail) {
-    throw new CustomError(400, "User data not found");
+    throw new CustomError(404, "User data not found");
   }
   const response = {
     userId: userDetail["user_id"],
@@ -102,7 +102,7 @@ userService.update = async ({ userId, fullName, email, roleType, user_id }) => {
   });
 
   if (!userData) {
-    throw new CustomError(400, "User data not found");
+    throw new CustomError(404, "User data not found");
   }
 
   /* Update data in users table */
@@ -129,7 +129,7 @@ userService.delete = async ({ userId, roleType, user_id }) => {
   });
 
   if (!userData) {
-    throw new CustomError(400, "User data not found");
+    throw new CustomError(404, "User data not found");
   }
 
   /* Update data in users table */
@@ -144,7 +144,7 @@ userService.login = async ({ email, password }) => {
   });
 
   if (!userData) {
-    throw new CustomError(400, "User data not found");
+    throw new CustomError(404, "User data not found");
   }
 
   /* Check whether mentioned role exists or not */
@@ -154,7 +154,7 @@ userService.login = async ({ email, password }) => {
   });
 
   if (!roleData) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
 
   const comparePassword = await bcrypt.compare(password, userData.password);
@@ -163,14 +163,42 @@ userService.login = async ({ email, password }) => {
     throw new CustomError(400, "Password does not match");
   }
 
+  const is2FAEnabled = userData.is_2fa_enabled ? "true" : "false";
+
+  if (is2FAEnabled) {
+    /* Generate access token */
+    const tempAccessToken = await generateTempToken({
+      payload: {
+        userId: userData.user_id,
+        roleType: roleData.name,
+        jti: crypto.randomBytes(10).toString("hex"),
+      },
+    });
+    
+    return {
+      userId: userData.user_id,
+      roleType: roleData.name,
+      is2FAEnabled: is2FAEnabled,
+      accessToken: tempAccessToken
+    };
+  }
+
   /* Generate access token */
   const accessToken = await generateToken({
-    payload: { userId: userData.user_id, roleType: roleData.name, jti: crypto.randomBytes(10).toString("hex") },
+    payload: {
+      userId: userData.user_id,
+      roleType: roleData.name,
+      jti: crypto.randomBytes(10).toString("hex"),
+    },
   });
 
   /* Generate refresh token */
   const refreshToken = await generateRefreshToken({
-    payload: { userId: userData.user_id, roleType: roleData.name, jti: crypto.randomBytes(10).toString("hex") },
+    payload: {
+      userId: userData.user_id,
+      roleType: roleData.name,
+      jti: crypto.randomBytes(10).toString("hex"),
+    },
   });
 
   /* Add auth token, refresh token and its expiry date in users table */
@@ -188,6 +216,7 @@ userService.login = async ({ email, password }) => {
   return {
     userId: userData.user_id,
     roleType: roleData.name,
+    is2FAEnabled: is2FAEnabled,
     accessToken: accessToken,
     refreshToken: refreshToken
   };
@@ -211,7 +240,7 @@ userService.logout = async ({ userId, token }) => {
   });
 
   if (!userData) {
-    throw new CustomError(400, "User data not found");
+    throw new CustomError(404, "User data not found");
   }
 
   /* Remove auth token, in users table */
@@ -235,7 +264,7 @@ userService.refreshToken = async ({ userId, roleType }) => {
   });
 
   if (!userData) {
-    throw new CustomError(400, "User data not found");
+    throw new CustomError(404, "User data not found");
   }
   const token = await generateToken({
     payload: { userId: userId, roleId: roleType },

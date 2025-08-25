@@ -31,6 +31,8 @@ export const config = {
     expiresIn: process.env.JWT_EXPIRES_IN,
     refreshSecret: process.env.REFRESH_JWT_SECRET,
     refreshExpiresIn: process.env.REFRESH_JWT_EXPIRES_IN,
+    tempSecret: process.env.TEMP_JWT_SECRET,
+    tempExpiresIn: process.env.TEMP_JWT_EXPIRES_IN
   },
 
   // CORS Configuration

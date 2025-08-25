@@ -60,7 +60,7 @@ blogsService.fetchOne = async ({ blogId }) => {
   });
 
   if (!blogData) {
-    throw new CustomError(400, "Blog data not found");
+    throw new CustomError(404, "Blog data not found");
   }
 
   const response = {
@@ -133,7 +133,7 @@ blogsService.update = async ({ blogId, title, content, imageURL, userId, roleTyp
   });
 
   if (!blogData) {
-    throw new CustomError(400, "Blog data not found");
+    throw new CustomError(404, "Blog data not found");
   }
 
   /* Authorization check for updating blog */
@@ -193,7 +193,7 @@ blogsService.delete = async ({ blogId, userId, roleType }) => {
   });
 
   if (!blogData) {
-    throw new CustomError(400, "Blog data not found");
+    throw new CustomError(404, "Blog data not found");
   }
   
   /* Authorization check for updating blog */

@@ -13,7 +13,7 @@ rolePermissionsService.create = async ({ roleType, permissionDescription }) => {
   );
 
   if (!roleData) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
 
   /* Check whether mentioned permission exists or not */
@@ -23,7 +23,7 @@ rolePermissionsService.create = async ({ roleType, permissionDescription }) => {
   });
 
   if (!permissionData) {
-    throw new CustomError(400, "Permission data not found");
+    throw new CustomError(404, "Permission data not found");
   }
 
   /* Check whether mentioned role permission exists or not */
@@ -97,7 +97,7 @@ rolePermissionsService.fetchOne = async ({ rolePermissionId }) => {
   });
 
   if(!permissionDetails){
-    throw new CustomError(400, "Role permissions data not found")
+    throw new CustomError(404, "Role permissions data not found")
   }
 
   const response = {
@@ -116,7 +116,7 @@ rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionD
   });
 
   if (!rolePermissionsData) {
-    throw new CustomError(400, "Role permissions data not found");
+    throw new CustomError(404, "Role permissions data not found");
   }
 
   /* Check whether mentioned role exists or not */
@@ -126,7 +126,7 @@ rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionD
   });
 
   if (!roleData) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
 
   /* Check whether mentioned permission exists or not */
@@ -136,7 +136,7 @@ rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionD
   });
 
   if (!permissionData) {
-    throw new CustomError(400, "Permission data not found");
+    throw new CustomError(404, "Permission data not found");
   }
 
   /* Update data in permissions table */
@@ -153,7 +153,7 @@ rolePermissionsService.delete = async ({ rolePermissionId }) => {
   });
 
   if (!permissionData) {
-    throw new CustomError(400, "Permission data not found");
+    throw new CustomError(404, "Permission data not found");
   }
 
   /* Update data in users table */

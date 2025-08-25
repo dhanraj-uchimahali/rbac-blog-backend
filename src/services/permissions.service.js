@@ -26,7 +26,7 @@ permissionsService.fetchOne = async ({ permissionId }) => {
   });
 
   if(!permissionDetail){
-    throw new CustomError(400, "Permission data not found");
+    throw new CustomError(404, "Permission data not found");
   }
 
   return permissionDetail;
@@ -53,7 +53,7 @@ permissionsService.update = async ({ permissionId, name, description }) => {
   });
 
   if (!permissionData) {
-    throw new CustomError(400, "Permission data not found");
+    throw new CustomError(404, "Permission data not found");
   }
 
   /* Update data in permissions table */
@@ -70,7 +70,7 @@ permissionsService.delete = async ({ permissionId }) => {
   });
 
   if (!permissionData) {
-    throw new CustomError(400, "Permission data not found");
+    throw new CustomError(404, "Permission data not found");
   }
 
   /* Update data in users table */
