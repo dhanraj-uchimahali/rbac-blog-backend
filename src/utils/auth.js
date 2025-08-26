@@ -16,3 +16,13 @@ export const generateRefreshToken = async (payload) => {
 export const verifyToken = async (token) => {
  return jwt.verify(token, config.jwt.secret)
 }
+
+export const generateTempToken = async (payload) => {
+  return jwt.sign(payload, config.jwt.tempSecret, {
+    expiresIn: config.jwt.tempExpiresIn
+  });
+};
+
+export const verifyTempToken = async (token) => {
+ return jwt.verify(token, config.jwt.tempSecret)
+}

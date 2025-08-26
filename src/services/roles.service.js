@@ -25,7 +25,7 @@ rolesService.fetchOne = async ({ roleId }) => {
   });
 
   if (!roleDetail) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
   
   return roleDetail;
@@ -52,7 +52,7 @@ rolesService.update = async ({ roleId, name }) => {
   });
 
   if (!roleData) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
 
   /* Update data in roles table */
@@ -66,7 +66,7 @@ rolesService.delete = async ({ roleId }) => {
   });
 
   if (!roleData) {
-    throw new CustomError(400, "Role data not found");
+    throw new CustomError(404, "Role data not found");
   }
 
   /* Update data in roles table */

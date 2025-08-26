@@ -21,8 +21,10 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.9.1",
+    "qrcode": "^1.5.4",
     "redis": "^5.8.0",
     "sequelize": "^6.37.7",
+    "speakeasy": "^2.0.0",
     "winston": "^3.11.0",
     "yup": "^1.7.0"
   },

@@ -31,4 +31,10 @@ export const PERMISSIONS = {
   UPDATE_ANY_USER: "update_any_user",
   DELETE_USER: "delete_user",
   DELETE_ANY_USER: "delete_any_user",
+
+  ENABLE_2FA: "enable_2fa",
+  VERIFY_2FA: "verify_2fa",
+  DISABLE_2FA: "disable_2fa",
+  DISABLE_ANY_2FA: "disable_any_2fa"
+
 };

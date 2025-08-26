@@ -4,6 +4,7 @@ import rolesRoutes from './roles.routes.js';
 import permissionsRoutes from './permissions.routes.js';
 import rolePermissionsRoutes from './rolePermissions.routes.js';
 import blogsRoutes from './blogs.routes.js';
+import twoFactorAuthenticationRoutes from './2fa.routes.js';
 
 const router = express.Router();
 
@@ -17,5 +18,8 @@ router.use("/role-permissions", rolePermissionsRoutes);
 
 /* Blog Routes */
 router.use("/blogs", blogsRoutes)
+
+/* 2FA Routes */
+router.use("/2fa", twoFactorAuthenticationRoutes)
 
 export default router;
