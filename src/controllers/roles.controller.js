@@ -3,7 +3,7 @@ import rolesService from "../services/roles.service.js";
 const rolesController = {};
 
 rolesController.fetchAll = asyncHandler(async (req, res) => {
-  const result = await rolesService.fetchAll({ search: req.query.search });
+  const result = await rolesService.fetchAll({ search: req.query.search, limit: req.query.limit, offset: req.limit.offset });
   res.success(result, "Roles fetched successfully.", 200);
 });
 

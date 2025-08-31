@@ -5,7 +5,7 @@ import { Op } from "sequelize";
 
 const rolesService = {};
 
-rolesService.fetchAll = async ({ search }) => {
+rolesService.fetchAll = async ({ search, limit, offset }) => {
   logger.success.info({
     stage: "FETCH_ROLES",
     msg: "Roles data fetch initiated"
@@ -20,6 +20,8 @@ rolesService.fetchAll = async ({ search }) => {
   const roleDetails = await db.Roles.findAll({
     where: whereCondition,
     attributes: ["role_id", "name"],
+    limit: limit || 10,
+    offset: offset || 0
   });
 
   logger.success.info({

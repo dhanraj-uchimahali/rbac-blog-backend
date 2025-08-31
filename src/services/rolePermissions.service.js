@@ -1,6 +1,7 @@
 import CustomError from "../utils/customError.js";
 import db from "../models/mysql/index.js";
 import logger from "../utils/logger.js";
+import { Op } from "sequelize";
 
 const rolePermissionsService = {};
 
@@ -78,15 +79,24 @@ rolePermissionsService.create = async ({ roleType, permissionDescription }) => {
   });
 };
 
-rolePermissionsService.fetchAll = async () => {
+rolePermissionsService.fetchAll = async ({ search, limit, offset }) => {
   logger.success.info({
     stage: "FETCH_ROLE_PERMISSIONS",
     msg: "Role Permission data fetch initiated",
   });
 
+  let whereCondition = { is_active: 1 };
+
+  if (search) {
+    whereCondition[Op.or] = [
+      { "role.name": { [Op.like]: `%${search}%` } },
+      { "permissions.description": { [Op.like]: `%${search}%` } },
+    ];
+  }
+
   /* Fetch all permissions assigned role wise */
   const permissionDetails = await db.RolePermission.findAll({
-    where: { is_active: 1 },
+    where: whereCondition,
     attributes: [["role_id", "roleId"], ["permission_id", "permissionId"]],
     include: [
       {
@@ -97,9 +107,11 @@ rolePermissionsService.fetchAll = async () => {
       {
         model: db.Permission,
         as: 'permissions',
-        attributes: ["name"],
+        attributes: ["name", "description"],
       },
     ],
+    limit: limit || 10,
+    offset: offset || 0,
     raw: true
   });
  

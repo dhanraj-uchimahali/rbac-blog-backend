@@ -84,17 +84,31 @@ userService.create = async ({ fullName, email, password, confirmPassword, roleTy
   });
 };
 
-userService.fetchAll = async () => {
+userService.fetchAll = async ({ search, limit, offset }) => {
   logger.success.info({
     stage: "FETCH_USERS",
     msg: "Users data fetch started",
   });
+  
+  let whereCondition = { is_active: 1 };
+  const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
+  const nameRegex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+  if (search) {
+    if (emailRegex.test(search)) {
+      whereCondition.email = { [Op.like]: `%${search}%` };
+    }
+    if (nameRegex.test(search)) {
+      whereCondition.fullName = { [Op.like]: `%${search}%` };
+    }
+  }
 
   /* Check whether user details exists or not */
   const userDetails = await db.User.findAll({
     include: { model: db.Roles, as: "role", attributes: ["name"]},
-    where: { is_active: 1 },
+    where: whereCondition,
     attributes: ["user_id", "full_name", "email", "role_id"],
+    limit: limit || 10,
+    offset: offset || 0,
     raw: true,
   });
 

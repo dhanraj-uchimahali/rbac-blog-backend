@@ -5,7 +5,7 @@ import { Op } from "sequelize";
 
 const permissionsService = {};
 
-permissionsService.fetchAll = async ({ search }) => {
+permissionsService.fetchAll = async ({ search, limit, offset }) => {
   logger.success.info({
     stage: "FETCH_PERMISSIONS",
     msg: "Permissions data fetch initiated",
@@ -20,7 +20,9 @@ permissionsService.fetchAll = async ({ search }) => {
   /* Fetch all active permissions */
   const permissionDetails = await db.Permission.findAll({
     where: whereCondition,
-    attributes: ["permission_id", "name", "description"]
+    attributes: ["permission_id", "name", "description"],
+    limit: limit || 10,
+    offset: offset || 0
   });
 
   logger.success.info({

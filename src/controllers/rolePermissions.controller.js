@@ -11,7 +11,7 @@ rolePermissionsController.create = asyncHandler(async (req, res) => {
 });
 
 rolePermissionsController.fetchAll = asyncHandler(async (req, res) => {
-  const result = await rolePermissionsService.fetchAll({});
+  const result = await rolePermissionsService.fetchAll({ search: req.query.search, limit: req.query.limit, offset: req.query.offset });
   res.success(result, "Role permissions fetched successfully.", 200);
 });
 

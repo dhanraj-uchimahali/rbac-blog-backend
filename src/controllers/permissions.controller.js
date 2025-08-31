@@ -11,7 +11,7 @@ permissionsController.create = asyncHandler(async (req, res) => {
 });
 
 permissionsController.fetchAll = asyncHandler(async (req, res) => {
-  const result = await permissionsService.fetchAll({ search: req.query.search });
+  const result = await permissionsService.fetchAll({ search: req.query.search, limit: req.query.limit, offset: req.query.offset });
   res.success(result, "Permissions fetched successfully.", 200);
 });
 

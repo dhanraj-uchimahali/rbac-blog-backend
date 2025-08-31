@@ -14,7 +14,7 @@ userController.create = asyncHandler(async (req, res) => {
 });
 
 userController.fetchAll = asyncHandler(async (req, res) => {
-  const result = await userService.fetchAll({});
+  const result = await userService.fetchAll({ search: req.query.search, limit: req.query.limit, offset: req.offset });
   res.success(result, "Users data fetched successfully.", 200);
 });
 
