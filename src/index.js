@@ -58,6 +58,9 @@ app.use(express.text({ extended: true }));
 // Enable middleware for parsing URL-encoded request bodies
 app.use(express.urlencoded({ extended: true }));
 
+// Trust the first proxy (safe for Nginx/Heroku/AWS ELB)
+app.set("trust proxy", 1);
+
 // Response Middleware
 app.use(responseMiddleware);
 

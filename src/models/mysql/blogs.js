@@ -12,7 +12,7 @@ export default (sequelize, DataTypes) => {
         allowNull: false
       },
       content: {
-        type: DataTypes.JSON,
+        type: DataTypes.TEXT('medium'),
         allowNull: false,
       },
       image_url: {

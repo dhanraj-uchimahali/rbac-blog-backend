@@ -6,10 +6,17 @@ import db from "../models/mysql/index.js";
 import { ROLES } from "../constants/roles.js";
 import { generateRefreshToken, generateToken } from "../utils/auth.js";
 import CustomError from "../utils/customError.js";
+import logger from '../utils/logger.js';
 
 const twoFactorAuthenticationService = {};
 
 twoFactorAuthenticationService.setup = async ({ userId }) => {
+  logger.success.info({
+    stage: "2FA_SETUP",
+    msg: "2FA setup process initiated",
+    userId,
+  });
+
   /* Check whether user details exists or not */
   const userData = await db.User.findOne({
     where: { user_id: userId, is_active: 1 },
@@ -17,7 +24,12 @@ twoFactorAuthenticationService.setup = async ({ userId }) => {
   });
 
   if (!userData) {
-    throw new CustomError(404, "User data not found");
+    logger.error.error({
+      stage: "2FA_SETUP",
+      msg: "2FA setup process failed - User not found",
+      userId,
+    });
+    throw new CustomError(404, "User not found");
   }
 
   const secret = speakeasy.generateSecret();
@@ -39,10 +51,22 @@ twoFactorAuthenticationService.setup = async ({ userId }) => {
     { where: { user_id: userId } }
   );
 
+  logger.success.info({
+    stage: "2FA_SETUP",
+    msg: "2FA enabled successfully",
+    userId,
+  });
   return qrCodeImage;
 };
 
 twoFactorAuthenticationService.verify = async ({ otp, userId }) => {
+  logger.success.info({
+    stage: "2FA_VERIFY",
+    msg: "2FA verification process initiated",
+    userId,
+    otp
+  });
+
   /* Check whether user details exists or not */
   const userData = await db.User.findOne({
     where: { user_id: userId, is_active: 1 },
@@ -50,7 +74,13 @@ twoFactorAuthenticationService.verify = async ({ otp, userId }) => {
   });
 
   if (!userData) {
-    throw new CustomError(404, "User data not found");
+    logger.error.error({
+      stage: "2FA_VERIFY",
+      msg: "2FA verification process failed - User not found",
+      userId,
+      otp
+    });
+    throw new CustomError(404, "User not found");
   }
 
   /* Check whether mentioned role exists or not */
@@ -60,7 +90,13 @@ twoFactorAuthenticationService.verify = async ({ otp, userId }) => {
   });
 
   if (!roleData) {
-    throw new CustomError(404, "Role data not found");
+    logger.error.error({
+      stage: "2FA_VERIFY",
+      msg: "2FA verification process failed - Role not found",
+      userId,
+      otp
+    });
+    throw new CustomError(404, "Role not found");
   }
 
   const isTOTPVerified = speakeasy.totp.verify({
@@ -70,6 +106,12 @@ twoFactorAuthenticationService.verify = async ({ otp, userId }) => {
   });
 
   if (!isTOTPVerified) {
+    logger.error.error({
+      stage: "2FA_VERIFY",
+      msg: "2FA verification process failed - Invalid or expired 2FA code",
+      userId,
+      otp
+    });
     throw new CustomError(400, "Invalid or expired 2FA code");
   }
 
@@ -100,6 +142,14 @@ twoFactorAuthenticationService.verify = async ({ otp, userId }) => {
       where: { user_id: userData.user_id },
     }
   );
+
+  logger.success.info({
+    stage: "2FA_VERIFY",
+    msg: "2FA OTP verified successfully",
+    userId,
+    otp
+  });
+
   return {
     userId: userData.user_id,
     roleType: roleData.name,
@@ -109,6 +159,14 @@ twoFactorAuthenticationService.verify = async ({ otp, userId }) => {
 };
 
 twoFactorAuthenticationService.disable = async ({ userId, roleType, otp }) => {
+  logger.success.info({
+    stage: "2FA_DISABLE",
+    msg: "2FA disable process initiated",
+    userId,
+    roleType,
+    otp
+  });
+
   /* Check whether user details exists or not */
   const userData = await db.User.findOne({
     where: { user_id: userId, is_active: 1 },
@@ -116,11 +174,25 @@ twoFactorAuthenticationService.disable = async ({ userId, roleType, otp }) => {
   });
 
   if (!userData) {
-    throw new CustomError(404, "User data not found");
+    logger.error.error({
+      stage: "2FA_DISABLE",
+      msg: "2FA disable process failed - User not found",
+      userId,
+      roleType,
+      otp,
+    });
+    throw new CustomError(404, "User not found");
   }
 
   if (roleType !== ROLES.USER_ADMIN && userId !== userData.user_id) {
-    throw new CustomError(403, "Forbidden: You can only disable your own 2FA");
+    logger.error.error({
+      stage: "2FA_DISABLE",
+      msg: "2FA disable process failed - Forbidden: Access Denied",
+      userId,
+      roleType,
+      otp,
+    });
+    throw new CustomError(403, "Forbidden: Access Denied");
   }
 
   if (roleType !== ROLES.USER_ADMIN) {
@@ -130,6 +202,13 @@ twoFactorAuthenticationService.disable = async ({ userId, roleType, otp }) => {
       token: otp,
     });
     if (!isTOTPVerified) {
+      logger.error.error({
+        stage: "2FA_DISABLE",
+        msg: "2FA disable process failed - Invalid or expired 2FA code",
+        userId,
+        roleType,
+        otp,
+      });
       throw new CustomError(400, "Invalid or expired 2FA code");
     }
   }
@@ -141,6 +220,14 @@ twoFactorAuthenticationService.disable = async ({ userId, roleType, otp }) => {
     },
     { where: { user_id: userId } }
   );
+
+  logger.success.info({
+    stage: "2FA_DISABLE",
+    msg: "2FA disabled successfully",
+    userId,
+    roleType,
+    otp,
+  });
 };
 
 export default twoFactorAuthenticationService;

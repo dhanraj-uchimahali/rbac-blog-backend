@@ -5,10 +5,16 @@ import { fileURLToPath } from "url";
 import db from "../models/mysql/index.js";
 import config from "../constants/config.js";
 import { ROLES } from "../constants/roles.js";
+import logger from "../utils/logger.js";
 
 const blogsService = {};
 
 blogsService.fetchAll = async ({ search, limit, offset }) => {
+  logger.success.info({
+    stage: "FETCH_BLOGS",
+    msg: "Blogs data fetch started",
+  });
+
   let whereCondition = { is_active: 1 };
 
   if (search) {
@@ -43,10 +49,21 @@ blogsService.fetchAll = async ({ search, limit, offset }) => {
     };
   });
 
+  logger.success.info({
+    stage: "FETCH_BLOGS",
+    msg: "Blogs fetched successfully",
+  });
+
   return response;
 };
 
 blogsService.fetchOne = async ({ blogId }) => {
+  logger.success.info({
+    stage: "FETCH_BLOG",
+    msg: "Blog data fetch initiated",
+    blogId,
+  });
+
   /* Fetch active blog data on the basis of blogId */
   const blogData = await db.Blogs.findOne({
     where: { blog_id: blogId, is_active: 1 },
@@ -60,7 +77,12 @@ blogsService.fetchOne = async ({ blogId }) => {
   });
 
   if (!blogData) {
-    throw new CustomError(404, "Blog data not found");
+    logger.error.error({
+      stage: "FETCH_BLOG",
+      msg: "Blog data fetch failed - Blog not found",
+      blogId,
+    });
+    throw new CustomError(404, "Blog not found");
   }
 
   const response = {
@@ -74,10 +96,25 @@ blogsService.fetchOne = async ({ blogId }) => {
        `${config.nodeEndpoint}/${url}`
       ))
     }
+  
+  logger.success.info({
+    stage: "FETCH_BLOG",
+    msg: "Blog data fetched successfully.",
+    blogId,
+  });
+  
   return response;
 };
 
 blogsService.create = async ({ content, title, imageURL, userId }) => {
+  logger.success.info({
+    stage: "CREATE_BLOG",
+    msg: "Blog creation started",
+    content,
+    title,
+    imageURL,
+    userId,
+  });
   /* Check whether mentioned blog exists or not */
   const blogData = await db.Blogs.findOne({
     where: { title: title, is_active: 1 },
@@ -85,7 +122,15 @@ blogsService.create = async ({ content, title, imageURL, userId }) => {
   });
 
   if (blogData) {
-    throw new CustomError(400, "Blog data already exists");
+    logger.error.error({
+      stage: "CREATE_BLOG",
+      msg: "Blog creation failed - Blog already exists",
+      content,
+      title,
+      imageURL,
+      userId,
+    });
+    throw new CustomError(400, "Blog already exists");
   }
 
   const __filename = fileURLToPath(import.meta.url);
@@ -123,9 +168,29 @@ blogsService.create = async ({ content, title, imageURL, userId }) => {
     image_url: imageUploadURL,
     user_id: userId
   });
+
+  logger.success.info({
+    stage: "CREATE_BLOG",
+    msg: "Blog created successfully",
+    content,
+    title,
+    imageURL,
+    userId,
+  });
 };
 
 blogsService.update = async ({ blogId, title, content, imageURL, userId, roleType }) => {
+  logger.success.info({
+    stage: "UPDATE_BLOG",
+    msg: "Blog update process started",
+    blogId,
+    title,
+    content,
+    imageURL,
+    userId,
+    roleType,
+  });
+
   /* Check whether mentioned blog exists or not */
   const blogData = await db.Blogs.findOne({
     where: { blog_id: blogId, is_active: 1 },
@@ -133,12 +198,32 @@ blogsService.update = async ({ blogId, title, content, imageURL, userId, roleTyp
   });
 
   if (!blogData) {
-    throw new CustomError(404, "Blog data not found");
+    logger.error.error({
+      stage: "UPDATE_BLOG",
+      msg: "Blog update process failed - Blog not found",
+      blogId,
+      title,
+      content,
+      imageURL,
+      userId,
+      roleType,
+    });
+    throw new CustomError(404, "Blog not found");
   }
 
   /* Authorization check for updating blog */
-  if(roleType === ROLES.AUTHOR && blogData && blogData.user_id !== userId){
-    throw new CustomError(403, "Forbidden: You can only modify your own blog");
+  if (roleType === ROLES.AUTHOR && blogData && blogData.user_id !== userId) {
+    logger.error.error({
+      stage: "UPDATE_BLOG",
+      msg: "Blog update process failed - Forbidden: Access denied",
+      blogId,
+      title,
+      content,
+      imageURL,
+      userId,
+      roleType,
+    });
+    throw new CustomError(403, "Forbidden: Access denied");
   }
 
   const imageUploadURL = [];
@@ -183,9 +268,27 @@ blogsService.update = async ({ blogId, title, content, imageURL, userId, roleTyp
       where: { blog_id: blogId },
     }
   );
+  
+  logger.success.info({
+    stage: "UPDATE_BLOG",
+    msg: "Blog updated successfully",
+    blogId,
+    title,
+    content,
+    imageURL,
+    userId,
+    roleType,
+  });
 };
 
 blogsService.delete = async ({ blogId, userId, roleType }) => {
+  logger.success.info({
+    stage: "DELETE_BLOG",
+    msg: "Blog delete process started",
+    blogId,
+    userId,
+    roleType,
+  });
   /* Check whether mentioned blog exists or not */
   const blogData = await db.Blogs.findOne({
     where: { blog_id: blogId, is_active: 1 },
@@ -193,16 +296,38 @@ blogsService.delete = async ({ blogId, userId, roleType }) => {
   });
 
   if (!blogData) {
-    throw new CustomError(404, "Blog data not found");
+    logger.error.error({
+      stage: "DELETE_BLOG",
+      msg: "Blog delete process failed - Blog not found",
+      blogId,
+      userId,
+      roleType,
+    });
+    throw new CustomError(404, "Blog not found");
   }
   
   /* Authorization check for updating blog */
   if(roleType === ROLES.AUTHOR && blogData && blogData.user_id !== userId){
-    throw new CustomError(403, "Forbidden: You can only delete your own blog");
+    logger.error.error({
+      stage: "DELETE_BLOG",
+      msg: "Blog delete process failed - Forbidden: Access denied",
+      blogId,
+      userId,
+      roleType,
+    });    
+    throw new CustomError(403, "Forbidden: Access denied");
   }
 
   /* Update data in users table */
   await db.Blogs.update({ is_active: 0 }, { where: { blog_id: blogId } });
+
+  logger.success.info({
+    stage: "DELETE_BLOG",
+    msg: "Blog deleted successfully",
+    blogId,
+    userId,
+    roleType,
+  });
 };
 
 blogsService.imageUpload = async ({ files }) => {

@@ -1,19 +1,33 @@
 import CustomError from "../utils/customError.js";
 import db from "../models/mysql/index.js";
+import logger from "../utils/logger.js";
 
 const rolePermissionsService = {};
 
 rolePermissionsService.create = async ({ roleType, permissionDescription }) => {
+  logger.success.info({
+    stage: "CREATE_ROLE_PERMISSION",
+    msg: "Role permission creation started",
+    roleType,
+    permissionDescription,
+  });
+  
   /* Check whether mentioned role exists or not */
   const roleData = await db.Roles.findOne(
     {
-      where: { name: roleType, is_active: 1 },
+    where: { name: roleType, is_active: 1 },
       raw: true
     },
   );
 
   if (!roleData) {
-    throw new CustomError(404, "Role data not found");
+    logger.error.error({
+      stage: "CREATE_ROLE_PERMISSION",
+      msg: "Role permission creation failed - Role not found",
+      roleType,
+      permissionDescription,
+    });
+    throw new CustomError(404, "Role not found");
   }
 
   /* Check whether mentioned permission exists or not */
@@ -23,23 +37,53 @@ rolePermissionsService.create = async ({ roleType, permissionDescription }) => {
   });
 
   if (!permissionData) {
-    throw new CustomError(404, "Permission data not found");
+    logger.error.error({
+      stage: "CREATE_ROLE_PERMISSION",
+      msg: "Role permission creation failed - Permission not found",
+      roleType,
+      permissionDescription,
+    });
+    throw new CustomError(404, "Permission not found");
   }
 
   /* Check whether mentioned role permission exists or not */
   const rolePermissionsData = await db.RolePermission.findOne({
-    where: { role_id: roleData.role_id, permission_id: permissionData.permission_id },
+    where: {
+      role_id: roleData.role_id,
+      permission_id: permissionData.permission_id,
+    },
   });
 
   if (rolePermissionsData) {
-    throw new CustomError(400, "Role permissions data already exists");
+    logger.error.error({
+      stage: "CREATE_ROLE_PERMISSION",
+      msg: "Role permission creation failed - Role permission already exists",
+      roleType,
+      permissionDescription,
+    });
+    throw new CustomError(400, "Role permission already exists");
   }
 
   /* Insert data in permissions table */
-  await db.RolePermission.create({ role_id: roleData.role_id, permission_id: permissionData.permission_id });
+  await db.RolePermission.create({
+    role_id: roleData.role_id,
+    permission_id: permissionData.permission_id,
+  });
+
+  logger.success.info({
+    stage: "CREATE_ROLE_PERMISSION",
+    msg: "Role permission created successfully",
+    roleType,
+    permissionDescription,
+  });
 };
 
 rolePermissionsService.fetchAll = async () => {
+  logger.success.info({
+    stage: "FETCH_ROLE_PERMISSIONS",
+    msg: "Role Permission data fetch initiated",
+  });
+
   /* Fetch all permissions assigned role wise */
   const permissionDetails = await db.RolePermission.findAll({
     where: { is_active: 1 },
@@ -70,10 +114,22 @@ rolePermissionsService.fetchAll = async () => {
 
   /* Grouped permissions on the basis of role type */
   const response = Object.groupBy(parsedResponse, (element) => element.roleType)
+
+  logger.success.info({
+    stage: "FETCH_ROLE_PERMISSIONS",
+    msg: "Role permissions fetched successfully",
+  });
+
   return response
 };
 
 rolePermissionsService.fetchOne = async ({ rolePermissionId }) => {
+  logger.success.info({
+    stage: "FETCH_ROLE_PERMISSION",
+    msg: "Role permission data fetch initiated",
+    rolePermissionId,
+  });
+
   /* Fetch role wise permission on the basis of rolePermissionId */
   const permissionDetails = await db.RolePermission.findAll({
     where: { role_permission_id: rolePermissionId, is_active: 1 },
@@ -96,8 +152,13 @@ rolePermissionsService.fetchOne = async ({ rolePermissionId }) => {
     raw: true,
   });
 
-  if(!permissionDetails){
-    throw new CustomError(404, "Role permissions data not found")
+  if (!permissionDetails) {
+    logger.error.error({
+      stage: "FETCH_ROLE_PERMISSION",
+      msg: "Role permission data fetch failed - Role permission not found",
+      rolePermissionId,
+    });
+    throw new CustomError(404, "Role permission not found")
   }
 
   const response = {
@@ -106,17 +167,39 @@ rolePermissionsService.fetchOne = async ({ rolePermissionId }) => {
     roleType: permissionDetails[0]["role.name"],
     permissionName: permissionDetails[0]["permissions.name"],
   };
+  
+  logger.success.info({
+    stage: "FETCH_ROLE_PERMISSION",
+    msg: "Role permission fetched successfully",
+    rolePermissionId,
+  });
+
   return response;
 };
 
 rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionDescription }) => {
+  logger.success.info({
+    stage: "UPDATE_ROLE_PERMISSION",
+    msg: "Role permission update process started",
+    rolePermissionId,
+    roleType,
+    permissionDescription,
+  });
+
   /* Check whether mentioned role permission exists or not */
   const rolePermissionsData = await db.RolePermission.findOne({
     where: { role_permission_id: rolePermissionId },
   });
 
   if (!rolePermissionsData) {
-    throw new CustomError(404, "Role permissions data not found");
+    logger.error.error({
+      stage: "UPDATE_ROLE_PERMISSION",
+      msg: "Role permission update process failed - Role permission not found",
+      rolePermissionId,
+      roleType,
+      permissionDescription,
+    });
+    throw new CustomError(404, "Role permission not found")
   }
 
   /* Check whether mentioned role exists or not */
@@ -126,7 +209,14 @@ rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionD
   });
 
   if (!roleData) {
-    throw new CustomError(404, "Role data not found");
+    logger.error.error({
+      stage: "UPDATE_ROLE_PERMISSION",
+      msg: "Role permission update process failed - Role not found",
+      rolePermissionId,
+      roleType,
+      permissionDescription,
+    });
+    throw new CustomError(404, "Role not found");
   }
 
   /* Check whether mentioned permission exists or not */
@@ -136,7 +226,14 @@ rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionD
   });
 
   if (!permissionData) {
-    throw new CustomError(404, "Permission data not found");
+    logger.error.error({
+      stage: "UPDATE_ROLE_PERMISSION",
+      msg: "Role permission update process failed - Permission not found",
+      rolePermissionId,
+      roleType,
+      permissionDescription,
+    });
+    throw new CustomError(404, "Permission not found");
   }
 
   /* Update data in permissions table */
@@ -144,20 +241,45 @@ rolePermissionsService.update = async ({ rolePermissionId, roleType, permissionD
     { role_id: roleData.role_id, permission_id: permissionData.permission_id },
     { where: { role_permission_id: rolePermissionId } }
   );
+
+  logger.success.info({
+    stage: "UPDATE_ROLE_PERMISSION",
+    msg: "Role permission updated successfully",
+    rolePermissionId,
+    roleType,
+    permissionDescription,
+  });
 };
 
 rolePermissionsService.delete = async ({ rolePermissionId }) => {
-  /* Check whether mentioned permission exists or not */
-  const permissionData = await db.RolePermission.findOne({
-    where: {role_permission_id: rolePermissionId, is_active: 1 },
+  logger.success.info({
+    stage: "DELETE_ROLE_PERMISSION",
+    msg: "Role permission delete process started",
+    rolePermissionId,
   });
 
-  if (!permissionData) {
-    throw new CustomError(404, "Permission data not found");
+  /* Check whether mentioned permission exists or not */
+  const rolePermissionData = await db.RolePermission.findOne({
+    where: { role_permission_id: rolePermissionId, is_active: 1 }
+  });
+
+  if (!rolePermissionData) {
+    logger.error.error({
+      stage: "DELETE_ROLE_PERMISSION",
+      msg: "Role permission delete process failed - Role Permission not found",
+      rolePermissionId,
+    });
+    throw new CustomError(404, "Role Permission not found");
   }
 
   /* Update data in users table */
   await db.RolePermission.update({ is_active: 0 }, { where: { role_permission_id: rolePermissionId } });
+
+  logger.success.info({
+    stage: "DELETE_ROLE_PERMISSION",
+    msg: "Role permission deleted successfully",
+    rolePermissionId,
+  });
 };
 
 export default rolePermissionsService;

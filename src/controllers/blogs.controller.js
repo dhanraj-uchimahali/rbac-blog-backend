@@ -34,7 +34,7 @@ blogsController.update = asyncHandler(async (req, res) => {
     blogId: req.params.blogId,
     title: req.body.title,
     content: req.body.content,
-    imageURL: req.body.imageURL,
+    imageURL: req.body.imageURL || '',
     userId: req.userId,
     roleType: req.roleType
   });
