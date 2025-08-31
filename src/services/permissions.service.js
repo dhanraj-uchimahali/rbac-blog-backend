@@ -1,6 +1,7 @@
 import CustomError from "../utils/customError.js";
 import db from "../models/mysql/index.js";
 import logger from "../utils/logger.js";
+import { Op } from "sequelize";
 
 const permissionsService = {};
 
@@ -13,7 +14,7 @@ permissionsService.fetchAll = async ({ search }) => {
   let whereCondition = { is_active: 1 };
 
   if (search) {
-    whereCondition.description = search;
+    whereCondition.description = { [Op.like]: `%${search}%` };
   }
 
   /* Fetch all active permissions */

@@ -1,6 +1,7 @@
 import CustomError from "../utils/customError.js";
 import db from "../models/mysql/index.js";
 import logger from "../utils/logger.js";
+import { Op } from "sequelize";
 
 const rolesService = {};
 
@@ -12,7 +13,7 @@ rolesService.fetchAll = async ({ search }) => {
 
   let whereCondition = { is_active: 1 };
   if (search) {
-    whereCondition.name = search;
+    whereCondition.name = { [Op.like]: `%${search}%` };
   }
 
   /* Fetch all active roles */

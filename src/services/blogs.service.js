@@ -6,6 +6,7 @@ import db from "../models/mysql/index.js";
 import config from "../constants/config.js";
 import { ROLES } from "../constants/roles.js";
 import logger from "../utils/logger.js";
+import { Op } from "sequelize";
 
 const blogsService = {};
 
@@ -18,7 +19,7 @@ blogsService.fetchAll = async ({ search, limit, offset }) => {
   let whereCondition = { is_active: 1 };
 
   if (search) {
-    whereCondition.title = search;
+    whereCondition.title = { [Op.like]: `%${search}%` };
   }
 
   /* Fetch all active blogs data */
