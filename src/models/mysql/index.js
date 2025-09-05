@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { sequelize } from "../../db/mysql.js";
 import { DataTypes } from "sequelize";
 
-const __filename =fileURLToPath(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const db = {};
